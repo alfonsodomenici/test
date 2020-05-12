@@ -118,7 +118,7 @@ public class User extends AbstractEntity implements Serializable {
     @Override
     public String toString() {
         return "User{" + "id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", usr=" + usr + ", pwd=" + pwd + ", birthDate="
-                + birthDate == null ? "" : birthDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + '}';
+                + birthDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + '}';
     }
 
 }

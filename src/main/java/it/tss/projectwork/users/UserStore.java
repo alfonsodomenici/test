@@ -43,6 +43,7 @@ public class UserStore {
     }
 
     public User create(User u) {
+         System.out.println("----------------------"  + u + " ----------------------------------");
         if (findByUsr(u.getUsr()).isPresent()) {
             throw new UserAlreadyExistException(u.getUsr());
         }

@@ -6,6 +6,11 @@
 package it.tss.projectwork.users;
 
 import java.util.Collection;
+import java.util.Set;
+import javax.annotation.PostConstruct;
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.json.JsonObject;
 import javax.ws.rs.BadRequestException;
@@ -23,6 +28,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.Claim;
+import org.eclipse.microprofile.jwt.Claims;
 
 /**
  *
@@ -32,8 +39,21 @@ import javax.ws.rs.core.Response;
 public class UsersResource {
 
     @Inject
+    @Claim(standard = Claims.groups)
+    private Set<String> groups;
+
+    @Inject
+    @Claim(standard = Claims.upn)
+    private String principal;
+
+    @Inject
     UserStore store;
 
+    @PostConstruct
+    public void init(){
+        System.out.println("principal: " + principal + " groups: " + groups);
+    }
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Collection<User> all(@QueryParam("search") String search) {

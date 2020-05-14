@@ -61,11 +61,11 @@ public class JWTManager {
             System.out.println(jwt);
 
             SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256)
-                    .keyID("/privateKey.pem")
+                    .keyID("/" + PRIVATE_KEY)
                     .type(JOSEObjectType.JWT)
                     .build(), JWTClaimsSet.parse(jwt));
 
-            signedJWT.sign(new RSASSASigner(readPrivateKey("privateKey.pem")));
+            signedJWT.sign(new RSASSASigner(readPrivateKey(PRIVATE_KEY)));
 
             return signedJWT.serialize();
         } catch (ParseException ex) {

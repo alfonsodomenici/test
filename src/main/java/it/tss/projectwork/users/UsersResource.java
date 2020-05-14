@@ -5,8 +5,8 @@
  */
 package it.tss.projectwork.users;
 
+import java.security.Principal;
 import java.util.Collection;
-import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -30,32 +30,37 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.Claim;
 import org.eclipse.microprofile.jwt.Claims;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 /**
  *
  * @author alfonso
  */
 @Path("/users")
+@DenyAll
 public class UsersResource {
 
     @Inject
-    @Claim(standard = Claims.groups)
-    private Set<String> groups;
+    @Claim(standard = Claims.upn)
+    private String upn;
 
     @Inject
-    @Claim(standard = Claims.upn)
-    private String principal;
+    private Principal principal;
+
+    @Inject
+    JsonWebToken jwt;
 
     @Inject
     UserStore store;
 
     @PostConstruct
-    public void init(){
-        System.out.println("principal: " + principal + " groups: " + groups);
+    public void init() {
+        logAuth();
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("users")
     public Collection<User> all(@QueryParam("search") String search) {
         return search == null ? store.all() : store.search(search);
     }
@@ -63,6 +68,7 @@ public class UsersResource {
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("users")
     public User find(@PathParam("id") Long id) {
         User found = store.find(id);
         if (found == null) {
@@ -74,6 +80,7 @@ public class UsersResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @PermitAll
     public Response create(User u) {
         User saved = store.create(u);
         return Response
@@ -85,6 +92,7 @@ public class UsersResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
+    @PermitAll
     public Response create(
             @FormParam("firstName") String fname,
             @FormParam("lastName") String lname,
@@ -103,6 +111,7 @@ public class UsersResource {
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("users")
     public User update(@PathParam("id") Long id, User u) {
         if (u.getId() == null || !u.getId().equals(id)) {
             throw new BadRequestException();
@@ -113,6 +122,7 @@ public class UsersResource {
     @PATCH
     @Path("{id}/firstname")
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("users")
     public User updateFirstName(@PathParam("id") Long id, JsonObject json) {
         User found = store.find(id);
         found.setFirstName(json.getString("firstName"));
@@ -121,6 +131,7 @@ public class UsersResource {
 
     @DELETE
     @Path("{id}")
+    @RolesAllowed("users")
     public Response delete(@PathParam("id") Long id) {
         User found = store.find(id);
         if (found == null) {
@@ -128,5 +139,22 @@ public class UsersResource {
         }
         store.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    private void logAuth() {
+        System.out.println("************************** UPN ********************************");
+        System.out.println("");
+        System.out.println("username: " + upn);
+        System.out.println("");
+        System.out.println("************************** Principal ********************************");
+        System.out.println("");
+        System.out.println("principal: " + principal);
+        System.out.println("");
+        System.out.println("************************** JWT Token ********************************");
+        System.out.println("");
+        System.out.println("jwt: " + jwt);
+        System.out.println("************************** JWT Token RAW ********************************");
+        System.out.println("");
+        System.out.println("jwt: " + jwt.getRawToken());
     }
 }

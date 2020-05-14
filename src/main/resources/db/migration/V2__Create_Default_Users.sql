@@ -1,2 +1,2 @@
-insert into user (fname,lname,usr,pwd) values ('alfonso','domenici','alfonso','alfonso');
-insert into user (fname,lname,usr,pwd) values ('matteo','secondi','matteo','matteo');
+insert into user (fname,lname,usr,pwd,version,deleted) values ('alfonso','domenici','alfonso','alfonso',0,false);
+insert into user (fname,lname,usr,pwd,version,deleted) values ('matteo','secondi','matteo','matteo',0,false);

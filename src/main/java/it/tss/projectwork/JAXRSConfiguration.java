@@ -1,7 +1,6 @@
 package it.tss.projectwork;
 
 import javax.annotation.security.DeclareRoles;
-import javax.enterprise.context.ApplicationScoped;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import org.eclipse.microprofile.auth.LoginConfig;
@@ -12,10 +11,10 @@ import org.eclipse.microprofile.auth.LoginConfig;
  *
  * @author airhacks.com
  */
-@ApplicationScoped
-@LoginConfig(authMethod = "MP-JWT", realmName = "")
-@ApplicationPath("resources")
+
+@LoginConfig(authMethod = "MP-JWT" , realmName = "MP-JWT")
 @DeclareRoles({"users"})
+@ApplicationPath("resources")
 public class JAXRSConfiguration extends Application {
 
 }

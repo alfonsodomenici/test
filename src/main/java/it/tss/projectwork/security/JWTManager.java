@@ -35,39 +35,25 @@ public class JWTManager {
     public String generate(String usr, Set<String> groups) {
 
         try {
-            long currentTimeInSecs = (System.currentTimeMillis() / 1000);
-            long expirationTime = currentTimeInSecs + 1000;
-            /*
-            JsonObject jwt =
-                    Json.createObjectBuilder()
-                            .add(Claims.iss.name(), ISS)
-                            .add(Claims.iat.name(), currentTimeInSecs)
-                            .add(Claims.auth_time.name(), currentTimeInSecs)
-                            .add(Claims.exp.name(), expirationTime)
-                            .add(Claims.upn.name(), usr)
-                            .add(Claims.groups.name(), loadGroups(groups))
-                            .build();
-             */
+            JSONObject jwt = generateJWT(usr, groups);
 
-            JSONObject jwt = new JSONObject();
-            jwt.put(Claims.iss.name(), ISS);
-            jwt.put(Claims.iat.name(), currentTimeInSecs);
-            jwt.put(Claims.auth_time.name(), currentTimeInSecs);
-            jwt.put(Claims.exp.name(), expirationTime);
-            jwt.put(Claims.upn.name(), usr);
-            jwt.put(Claims.groups.name(), loadGroups(groups));
-
-            System.out.println("------- JWT unsigned ----------------");
-            System.out.println(jwt);
-
-            SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256)
-                    .keyID("/" + PRIVATE_KEY)
+            JWSHeader header     = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                    .keyID(PRIVATE_KEY)
                     .type(JOSEObjectType.JWT)
-                    .build(), JWTClaimsSet.parse(jwt));
+                    .build();
 
-            signedJWT.sign(new RSASSASigner(readPrivateKey(PRIVATE_KEY)));
+            JWTClaimsSet claimSet   = JWTClaimsSet.parse(jwt);
+
+            SignedJWT signedJWT = new SignedJWT(header,claimSet);
+
+            PrivateKey privateKey = readPrivateKey(PRIVATE_KEY);
+            
+            RSASSASigner signer = new RSASSASigner(privateKey);
+            
+            signedJWT.sign(signer);
 
             return signedJWT.serialize();
+            
         } catch (ParseException ex) {
             Logger.getLogger(JWTManager.class.getName()).log(Level.SEVERE, null, ex);
             throw new JwtTokenException("Impossibile generare il JWT token ");
@@ -90,8 +76,34 @@ public class JWTManager {
                 .replaceAll("\n", "")
                 .trim();
 
+        byte[] decodedKey = Base64.getDecoder().decode(key);
         return KeyFactory.getInstance("RSA")
-                .generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key)));
+                .generatePrivate(new PKCS8EncodedKeySpec(decodedKey));
+    }
+
+    private JSONObject generateJWT(String usr, Set<String> groups) {
+        long currentTimeInSecs = (System.currentTimeMillis() / 1000);
+        long expirationTime = currentTimeInSecs + 1000;
+        /*
+            JsonObject jwt =
+                    Json.createObjectBuilder()
+                            .add(Claims.iss.name(), ISS)
+                            .add(Claims.iat.name(), currentTimeInSecs)
+                            .add(Claims.auth_time.name(), currentTimeInSecs)
+                            .add(Claims.exp.name(), expirationTime)
+                            .add(Claims.upn.name(), usr)
+                            .add(Claims.groups.name(), loadGroups(groups))
+                            .build();
+         */
+
+        JSONObject jwt = new JSONObject();
+        jwt.put(Claims.iss.name(), ISS);
+        jwt.put(Claims.iat.name(), currentTimeInSecs);
+        jwt.put(Claims.auth_time.name(), currentTimeInSecs);
+        jwt.put(Claims.exp.name(), expirationTime);
+        jwt.put(Claims.upn.name(), usr);
+        jwt.put(Claims.groups.name(), loadGroups(groups));
+        return jwt;
     }
 
     private JSONArray loadGroups(Set<String> groups) {

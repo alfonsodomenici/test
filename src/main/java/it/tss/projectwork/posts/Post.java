@@ -8,6 +8,7 @@ package it.tss.projectwork.posts;
 import it.tss.projectwork.AbstractEntity;
 import it.tss.projectwork.users.User;
 import java.time.LocalDate;
+import javax.json.bind.annotation.JsonbDateFormat;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -16,20 +17,24 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  *
  * @author alfonso
  */
 @NamedQueries({
-    @NamedQuery(name = Post.FIND_ALL, query = "select e from Post e order by e.createdOn DESC")
-})
+    @NamedQuery(name = Post.FIND_ALL, query = "select e from Post e order by e.createdOn DESC"),
+    @NamedQuery(name = Post.FIND_BY_USR, query = "select e from Post e where e.owner.id= :user_id order by e.createdOn DESC"),
+    @NamedQuery(name = Post.SEARCH, query = "select e from Post e where e.title like :search or e.body like :search order by e.createdOn DESC"),})
 
 @Entity
 @Table(name = "post")
 public class Post extends AbstractEntity {
 
     public static final String FIND_ALL = "Post.findAll";
+    public static final String FIND_BY_USR = "Post.findByUser";
+    public static final String SEARCH = "Post.search";
 
     @NotEmpty
     @Column(name = "title", nullable = false)
@@ -39,11 +44,13 @@ public class Post extends AbstractEntity {
     @Column(name = "body", nullable = false)
     private String body;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @Column(name = "end_date")
+    @JsonbDateFormat("dd/MM/yyyy")
     private LocalDate endDate;
 
     public String getTitle() {

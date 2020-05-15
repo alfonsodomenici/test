@@ -5,6 +5,7 @@
  */
 package it.tss.projectwork.users;
 
+import it.tss.projectwork.posts.PostsResource;
 import java.security.Principal;
 import java.util.Collection;
 import javax.annotation.PostConstruct;
@@ -140,7 +141,8 @@ public class UsersResource {
         store.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
-
+    
+    
     private void logAuth() {
         System.out.println("************************** UPN ********************************");
         System.out.println("");

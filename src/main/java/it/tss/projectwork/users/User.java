@@ -100,6 +100,7 @@ public class User extends AbstractEntity implements Serializable {
         this.usr = usr;
     }
 
+    @JsonbTransient
     public String getPwd() {
         return pwd;
     }

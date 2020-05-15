@@ -7,8 +7,10 @@ package it.tss.projectwork.posts;
 
 import it.tss.projectwork.AbstractEntity;
 import it.tss.projectwork.users.User;
+import it.tss.projectwork.users.UserLinkAdapter;
 import java.time.LocalDate;
 import javax.json.bind.annotation.JsonbDateFormat;
+import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -44,6 +46,7 @@ public class Post extends AbstractEntity {
     @Column(name = "body", nullable = false)
     private String body;
 
+    @JsonbTypeAdapter(UserLinkAdapter.class)
     @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "owner_id", nullable = false)

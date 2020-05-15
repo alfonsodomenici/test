@@ -8,9 +8,7 @@ package it.tss.projectwork.security;
 import it.tss.projectwork.users.User;
 import it.tss.projectwork.users.UserStore;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -25,6 +23,7 @@ import javax.ws.rs.core.Response;
  * @author alfonso
  */
 @Path("/authentication")
+@PermitAll
 public class AuthenticationResource {
 
     @Inject

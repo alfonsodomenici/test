@@ -5,6 +5,7 @@
  */
 package it.tss.projectwork.posts;
 
+import it.tss.projectwork.users.UserStore;
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -25,19 +26,24 @@ import javax.ws.rs.core.Response;
  *
  * @author alfonso
  */
-@Path("/posts")
+
 public class PostsResource {
 
     @Inject
     PostStore store;
 
+    @Inject
+    UserStore userStore;
+    
+    private Long userId;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Post> all(@QueryParam("search") String search) {
-        return search == null ? store.all() : store.search(search);
+        return search == null ? store.findByUsr(userId) : store.search(userId, search);
     }
 
-    @GET
+
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Post find(@PathParam("id") Long id) {
@@ -52,6 +58,7 @@ public class PostsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(Post p) {
+        p.setOwner(userStore.find(userId));
         Post saved = store.create(p);
         return Response
                 .status(Response.Status.CREATED)
@@ -67,6 +74,7 @@ public class PostsResource {
         if (p.getId() == null || !p.getId().equals(id)) {
             throw new BadRequestException();
         }
+        p.setOwner(userStore.find(userId));
         return store.update(p);
     }
 
@@ -80,4 +88,16 @@ public class PostsResource {
         store.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
+
+    /*
+    getter/setter
+    */
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
 }

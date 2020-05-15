@@ -27,6 +27,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.container.ResourceContext;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.jwt.Claim;
@@ -40,6 +42,9 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 @Path("/users")
 @DenyAll
 public class UsersResource {
+
+    @Context
+    ResourceContext resource;
 
     @Inject
     @Claim(standard = Claims.upn)
@@ -66,16 +71,17 @@ public class UsersResource {
         return search == null ? store.all() : store.search(search);
     }
 
-    @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("users")
-    public User find(@PathParam("id") Long id) {
+    public UserResource find(@PathParam("id") Long id) {
         User found = store.find(id);
         if (found == null) {
             throw new NotFoundException();
         }
-        return found;
+        UserResource sub = resource.getResource(UserResource.class);
+        sub.setId(id);
+        return sub;
     }
 
     @POST
@@ -108,41 +114,6 @@ public class UsersResource {
                 .build();
     }
 
-    @PUT
-    @Path("{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("users")
-    public User update(@PathParam("id") Long id, User u) {
-        if (u.getId() == null || !u.getId().equals(id)) {
-            throw new BadRequestException();
-        }
-        return store.update(u);
-    }
-
-    @PATCH
-    @Path("{id}/firstname")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("users")
-    public User updateFirstName(@PathParam("id") Long id, JsonObject json) {
-        User found = store.find(id);
-        found.setFirstName(json.getString("firstName"));
-        return store.update(found);
-    }
-
-    @DELETE
-    @Path("{id}")
-    @RolesAllowed("users")
-    public Response delete(@PathParam("id") Long id) {
-        User found = store.find(id);
-        if (found == null) {
-            throw new NotFoundException();
-        }
-        store.delete(id);
-        return Response.status(Response.Status.NO_CONTENT).build();
-    }
-    
-    
     private void logAuth() {
         System.out.println("************************** UPN ********************************");
         System.out.println("");

@@ -11,6 +11,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import it.tss.projectwork.users.User;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -32,10 +33,10 @@ public class JWTManager {
     private static final String PRIVATE_KEY = "privateKey.pem";
     private static final String ISS = "it.tss.projectwork";
 
-    public String generate(String usr, Set<String> groups) {
+    public String generate(User usr) {
 
         try {
-            JSONObject jwt = generateJWT(usr, groups);
+            JSONObject jwt = generateJWT(usr);
 
             JWSHeader header     = new JWSHeader.Builder(JWSAlgorithm.RS256)
                     .keyID(PRIVATE_KEY)
@@ -81,7 +82,7 @@ public class JWTManager {
                 .generatePrivate(new PKCS8EncodedKeySpec(decodedKey));
     }
 
-    private JSONObject generateJWT(String usr, Set<String> groups) {
+    private JSONObject generateJWT(User usr) {
         long currentTimeInSecs = (System.currentTimeMillis() / 1000);
         long expirationTime = currentTimeInSecs + 1000;
         /*
@@ -101,14 +102,15 @@ public class JWTManager {
         jwt.put(Claims.iat.name(), currentTimeInSecs);
         jwt.put(Claims.auth_time.name(), currentTimeInSecs);
         jwt.put(Claims.exp.name(), expirationTime);
-        jwt.put(Claims.upn.name(), usr);
-        jwt.put(Claims.groups.name(), loadGroups(groups));
+        jwt.put(Claims.sub.name(), usr.getId().toString());
+        jwt.put(Claims.upn.name(), usr.getUsr());
+        jwt.put(Claims.groups.name(), loadGroups());
         return jwt;
     }
 
-    private JSONArray loadGroups(Set<String> groups) {
+    private JSONArray loadGroups() {
         JSONArray result = new JSONArray();
-        result.addAll(groups);
+        result.add("users");
         return result;
     }
 }

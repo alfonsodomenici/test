@@ -40,7 +40,7 @@ public class AuthenticationResource {
         Optional<User> user = store.search(credential);
         if (user.isPresent()) {
             return Response.status(Response.Status.OK)
-                    .header("token", token(credential.getUsr(), Stream.of("users").collect(Collectors.toSet())))
+                    .header("token", token(user.get()))
                     .build();
         }
         return Response.status(Response.Status.UNAUTHORIZED)
@@ -55,7 +55,7 @@ public class AuthenticationResource {
         Optional<User> user = store.search(new Credential(usr, pwd));
         if (user.isPresent()) {
             return Response.status(Response.Status.OK)
-                    .header("token", token(usr, Stream.of("users").collect(Collectors.toSet())))
+                    .header("token", token(user.get()))
                     .build();
         }
         return Response.status(Response.Status.UNAUTHORIZED)
@@ -63,8 +63,8 @@ public class AuthenticationResource {
                 .build();
     }
 
-    private String token(String usr, Set<String> groups) {
-        String result = jwtManager.generate(usr, Stream.of("users").collect(Collectors.toSet()));
+    private String token(User usr) {
+        String result = jwtManager.generate(usr);
         System.out.println("------------ generated token -------------------");
         System.out.println(result);
         System.out.println("------------ curl command for test -------------");

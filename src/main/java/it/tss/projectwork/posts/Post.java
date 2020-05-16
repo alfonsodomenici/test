@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 @NamedQueries({
     @NamedQuery(name = Post.FIND_ALL, query = "select e from Post e order by e.createdOn DESC"),
     @NamedQuery(name = Post.FIND_BY_USR, query = "select e from Post e where e.owner.id= :user_id order by e.createdOn DESC"),
+    @NamedQuery(name = Post.FIND_BY_ID_AND_USR, query = "select e from Post e where e.id= :id and e.owner.id= :user_id"),
     @NamedQuery(name = Post.SEARCH, query = "select e from Post e where e.owner.id= :user_id and e.title like :search or e.body like :search order by e.createdOn DESC"),})
 
 @Entity
@@ -36,6 +37,7 @@ public class Post extends AbstractEntity {
 
     public static final String FIND_ALL = "Post.findAll";
     public static final String FIND_BY_USR = "Post.findByUser";
+    public static final String FIND_BY_ID_AND_USR = "Post.findByIdAndUser";
     public static final String SEARCH = "Post.search";
 
     @NotEmpty

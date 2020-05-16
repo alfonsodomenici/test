@@ -7,10 +7,12 @@ package it.tss.projectwork.posts;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 /**
@@ -40,10 +42,22 @@ public class PostStore {
         em.remove(em.find(Post.class, id));
     }
 
-    public List<Post> findByUsr(Long id) {
+    public List<Post> findByUsr(Long userId) {
         return em.createNamedQuery(Post.FIND_BY_USR, Post.class)
-                .setParameter("user_id", id)
+                .setParameter("user_id", userId)
                 .getResultList();
+    }
+
+    public Optional<Post> findByIdAndUsr(Long id, Long userId) {
+        try {
+            Post result = em.createNamedQuery(Post.FIND_BY_ID_AND_USR, Post.class)
+                    .setParameter("id", id)
+                    .setParameter("user_id", userId)
+                    .getSingleResult();
+            return Optional.of(result);
+        } catch (NoResultException ex) {
+            return Optional.empty();
+        }
     }
 
     public List<Post> search(Long id, String search) {

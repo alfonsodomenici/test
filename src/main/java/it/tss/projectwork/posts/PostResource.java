@@ -6,17 +6,17 @@
 package it.tss.projectwork.posts;
 
 import it.tss.projectwork.users.UserStore;
-import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
  *
  * @author alfonso
  */
-public class PostsResource {
+public class PostResource {
 
     @Context
     ResourceContext resource;
@@ -37,38 +37,46 @@ public class PostsResource {
     @Inject
     UserStore userStore;
 
+    private Long id;
     private Long userId;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Post> all(@QueryParam("search") String search) {
-        return search == null ? store.findByUsr(userId) : store.search(userId, search);
+    public Post find() {
+        Optional<Post> found = store.findByIdAndUsr(id, userId);
+        return found.orElseThrow(() -> new NotFoundException());
     }
 
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public PostResource find(@PathParam("id") Long id) {
-        PostResource sub = resource.getResource(PostResource.class);
-        sub.setId(id);
-        sub.setUserId(userId);
-        return sub;
-    }
-
-    @POST
+    @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response create(Post p) {
+    public Post update( Post p) {
+        if (p.getId() == null || !p.getId().equals(id) || !store.findByIdAndUsr(id, userId).isPresent()) {
+            throw new BadRequestException();
+        }
         p.setOwner(userStore.find(userId));
-        Post saved = store.create(p);
-        return Response
-                .status(Response.Status.CREATED)
-                .entity(saved)
-                .build();
+        return store.update(p);
+    }
+
+    @DELETE
+    public Response delete() {
+        Optional<Post> optional = store.findByIdAndUsr(id, userId);
+        Post found = optional.orElseThrow(() -> new NotFoundException());
+        store.delete(found.getId());
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     /*
     getter/setter
      */
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getUserId() {
         return userId;
     }

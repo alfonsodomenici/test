@@ -8,6 +8,7 @@ package it.tss.projectwork.posts;
 import it.tss.projectwork.users.UserStore;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -26,6 +27,7 @@ import javax.ws.rs.core.Response;
  *
  * @author alfonso
  */
+@RolesAllowed("users")
 public class PostsResource {
 
     @Context

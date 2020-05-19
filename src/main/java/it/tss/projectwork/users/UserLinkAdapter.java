@@ -5,11 +5,11 @@
  */
 package it.tss.projectwork.users;
 
-import java.math.BigDecimal;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.bind.adapter.JsonbAdapter;
+import javax.ws.rs.NotFoundException;
 
 /**
  *
@@ -30,7 +30,7 @@ public class UserLinkAdapter implements JsonbAdapter<User, JsonObject> {
 
     @Override
     public User adaptFromJson(JsonObject json) throws Exception {
-        return store.find(Long.valueOf(json.getInt("id")));
+        return store.find(Long.valueOf(json.getInt("id"))).orElseThrow(() -> new NotFoundException());
     }
 
 }

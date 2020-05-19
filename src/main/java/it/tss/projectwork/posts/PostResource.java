@@ -5,8 +5,11 @@
  */
 package it.tss.projectwork.posts;
 
+import it.tss.projectwork.documents.DocumentsResource;
 import it.tss.projectwork.users.UserStore;
+import it.tss.projectwork.users.User;
 import java.util.Optional;
+import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -15,6 +18,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.ResourceContext;
 import javax.ws.rs.core.Context;
@@ -37,24 +41,24 @@ public class PostResource {
     @Inject
     UserStore userStore;
 
-    private Long id;
     private Long userId;
+    private Long id;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Post find() {
-        Optional<Post> found = store.findByIdAndUsr(id, userId);
-        return found.orElseThrow(() -> new NotFoundException());
+        return store.findByIdAndUsr(id, userId).orElseThrow(() -> new NotFoundException());
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Post update( Post p) {
+    public Post update(Post p) {
         if (p.getId() == null || !p.getId().equals(id) || !store.findByIdAndUsr(id, userId).isPresent()) {
             throw new BadRequestException();
         }
-        p.setOwner(userStore.find(userId));
+        User user = userStore.find(userId).orElseThrow(() -> new NotFoundException());
+        p.setOwner(user);
         return store.update(p);
     }
 
@@ -66,19 +70,19 @@ public class PostResource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
+    @Path("documents")
+    public DocumentsResource documents() {
+        DocumentsResource sub = resource.getResource(DocumentsResource.class);
+        sub.setUserId(userId);
+        sub.setPostId(id);
+        return sub;
+    }
+
     /*
     getter/setter
      */
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
     }
 
     public void setUserId(Long userId) {

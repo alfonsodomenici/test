@@ -41,11 +41,7 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("users")
     public User find() {
-        User found = store.find(id);
-        if (found == null) {
-            throw new NotFoundException();
-        }
-        return found;
+        return store.find(id).orElseThrow(() -> new NotFoundException());
     }
 
     @PUT
@@ -64,18 +60,14 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("users")
     public User updateFirstName(JsonObject json) {
-        User found = store.find(id);
-        found.setFirstName(json.getString("firstName"));
-        return store.update(found);
+        User user = store.find(id).orElseThrow(() -> new NotFoundException());
+        user.setFirstName(json.getString("firstName"));
+        return store.update(user);
     }
 
     @DELETE
     @RolesAllowed("users")
     public Response delete() {
-        User found = store.find(id);
-        if (found == null) {
-            throw new NotFoundException();
-        }
         store.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
@@ -83,10 +75,6 @@ public class UserResource {
     @Path("posts")
     @RolesAllowed("users")
     public PostsResource posts() {
-        User found = store.find(id);
-        if (found == null) {
-            throw new NotFoundException();
-        }
         PostsResource sub = resource.getResource(PostsResource.class);
         sub.setUserId(id);
         return sub;
@@ -95,10 +83,6 @@ public class UserResource {
     /*
     getter/setter
      */
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
     }

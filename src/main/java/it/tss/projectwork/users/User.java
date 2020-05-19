@@ -23,11 +23,11 @@ import javax.validation.constraints.NotEmpty;
  *
  * @author alfonso
  */
-@NamedQueries({
+    @NamedQueries({
     @NamedQuery(name = User.FIND_ALL, query = "select e from User e order by e.lastName"),
     @NamedQuery(name = User.FIND_BY_USR_PWD, query = "select e from User e where e.usr= :usr and e.pwd= :pwd"),
     @NamedQuery(name = User.FIND_BY_USR, query = "select e from User e where e.usr= :usr"),
-    @NamedQuery(name = User.SEARCH, query = "select e from User e where e.firstName like :fname and e.lastName like :lname and e.usr like :usr")
+    @NamedQuery(name = User.SEARCH, query = "select e from User e where e.firstName like :fname or e.lastName like :lname or e.usr like :usr")
 })
 @Entity
 @Table(name = "user")

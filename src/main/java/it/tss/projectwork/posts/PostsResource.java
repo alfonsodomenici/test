@@ -5,9 +5,10 @@
  */
 package it.tss.projectwork.posts;
 
+import it.tss.projectwork.users.User;
 import it.tss.projectwork.users.UserStore;
 import java.util.List;
-import java.util.Optional;
+import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -41,6 +42,10 @@ public class PostsResource {
 
     private Long userId;
 
+    @PostConstruct
+    public void init() {
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Post> all(@QueryParam("search") String search) {
@@ -60,7 +65,8 @@ public class PostsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(Post p) {
-        p.setOwner(userStore.find(userId));
+        User user = userStore.find(userId).orElseThrow(() -> new NotFoundException());
+        p.setOwner(user);
         Post saved = store.create(p);
         return Response
                 .status(Response.Status.CREATED)
@@ -71,9 +77,6 @@ public class PostsResource {
     /*
     getter/setter
      */
-    public Long getUserId() {
-        return userId;
-    }
 
     public void setUserId(Long userId) {
         this.userId = userId;

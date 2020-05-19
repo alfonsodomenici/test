@@ -13,6 +13,7 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -43,6 +44,9 @@ public class UsersResource {
     @Inject
     @Claim(standard = Claims.upn)
     private String upn;
+    @Inject
+    @Claim(standard = Claims.sub)
+    private Long subjectId;
 
     @Inject
     private Principal principal;
@@ -69,9 +73,8 @@ public class UsersResource {
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("users")
     public UserResource find(@PathParam("id") Long id) {
-        User found = store.find(id);
-        if (found == null) {
-            throw new NotFoundException();
+        if (!id.equals(subjectId)) {
+            throw new ForbiddenException();
         }
         UserResource sub = resource.getResource(UserResource.class);
         sub.setId(id);

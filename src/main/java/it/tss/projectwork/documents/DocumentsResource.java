@@ -7,15 +7,12 @@ package it.tss.projectwork.documents;
 
 import it.tss.projectwork.posts.Post;
 import it.tss.projectwork.posts.PostStore;
-import it.tss.projectwork.users.User;
 import java.io.ByteArrayInputStream;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;

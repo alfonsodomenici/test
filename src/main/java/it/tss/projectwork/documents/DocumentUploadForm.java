@@ -13,7 +13,7 @@ import org.jboss.resteasy.annotations.providers.multipart.PartType;
  *
  * @author alfonso
  */
-public class DocumentoUploadForm {
+public class DocumentUploadForm {
     
     private byte[] fileData;
     private String fileName;

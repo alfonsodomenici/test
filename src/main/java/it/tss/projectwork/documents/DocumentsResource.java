@@ -58,12 +58,13 @@ public class DocumentsResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadFile(@MultipartForm DocumentoUploadForm form) {
+    public Response uploadFile(@MultipartForm DocumentUploadForm form) {
         Post post = postStore.findByIdAndUsr(postId, userId).orElseThrow(() -> new NotFoundException());
         Document tosave = new Document();
         tosave.setTitle(form.getFileName());
         tosave.setFile(form.getFileName());
         tosave.setType(Document.Type.FILE);
+        tosave.setMediaType(form.getMediaType());
         tosave.setPost(post);
         Document saved = store.save(tosave, new ByteArrayInputStream(form.getFileData()));
         return Response.status(200)

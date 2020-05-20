@@ -29,7 +29,7 @@ public abstract class AbstractEntity implements Serializable {
     protected Long id;
 
     @Column(name = "created_on")
-    protected LocalDateTime createdOn;
+    protected LocalDateTime createdOn = LocalDateTime.now();
 
     @Column(name = "modified_on")
     protected LocalDateTime modifiedOn;

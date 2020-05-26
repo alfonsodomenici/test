@@ -16,6 +16,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 /**
@@ -84,7 +85,7 @@ public class UserStore {
                     .setParameter("pwd", credential.getPwd())
                     .getSingleResult();
             return Optional.of(found);
-        } catch (Exception ex) {
+        } catch (NoResultException ex) {
             Logger.getLogger(UserStore.class.getName()).log(Level.SEVERE, null, ex);
             return Optional.empty();
         }

@@ -55,7 +55,7 @@ public class User extends AbstractEntity implements Serializable {
     private String pwd;
 
     @Column(name = "birth_date")
-    @JsonbDateFormat("dd/MM/yyyy")
+    @JsonbDateFormat("yyyy-MM-dd")
     private LocalDate birthDate;
 
     public User() {

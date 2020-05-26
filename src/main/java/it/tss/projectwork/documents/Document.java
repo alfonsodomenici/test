@@ -37,14 +37,19 @@ public class Document extends AbstractEntity {
         FILE, LINK
     }
 
+    @Column(name = "title")
     private String title;
 
+    @Column(name = "description")
     private String description;
 
+    @Column(name = "file")
     private String file;
 
+    @Column(name = "thumb")
     private String thumb;
 
+    @Column(name = "type")
     @JsonbTypeAdapter(DocumentTypeLinkAdapter.class)
     @Enumerated(EnumType.STRING)
     private Type type;

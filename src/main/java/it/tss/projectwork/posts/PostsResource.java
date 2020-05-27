@@ -11,6 +11,8 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.annotation.JsonbCreator;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -48,8 +50,9 @@ public class PostsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Post> all(@QueryParam("search") String search) {
-        return search == null ? store.findByUsr(userId) : store.search(userId, search);
+    public Response all(@QueryParam("search") String search) {
+       List<Post> result = search == null ? store.findByUsr(userId) : store.search(userId, search);
+       return Response.ok(JsonbBuilder.create().toJson(result)).build();
     }
 
     @Path("{id}")
@@ -70,7 +73,7 @@ public class PostsResource {
         Post saved = store.create(p);
         return Response
                 .status(Response.Status.CREATED)
-                .entity(saved)
+                .entity(JsonbBuilder.create().toJson(saved))
                 .build();
     }
 

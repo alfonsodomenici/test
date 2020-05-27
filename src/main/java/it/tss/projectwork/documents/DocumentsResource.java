@@ -12,6 +12,7 @@ import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.json.Json;
+import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -47,8 +48,9 @@ public class DocumentsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Document> all() {
-        return store.findByUserAndPost(userId, postId);
+    public Response all() {
+        List<Document> result = store.findByUserAndPost(userId, postId);
+        return Response.ok(JsonbBuilder.create().toJson(result)).build();
     }
 
     @POST

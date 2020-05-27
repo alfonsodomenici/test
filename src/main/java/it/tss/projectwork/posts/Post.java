@@ -6,17 +6,24 @@
 package it.tss.projectwork.posts;
 
 import it.tss.projectwork.AbstractEntity;
+import it.tss.projectwork.documents.Document;
 import it.tss.projectwork.users.User;
 import it.tss.projectwork.users.UserLinkAdapter;
 import java.time.LocalDate;
+import java.util.List;
 import javax.json.bind.annotation.JsonbDateFormat;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -25,6 +32,13 @@ import javax.validation.constraints.NotNull;
  *
  * @author alfonso
  */
+
+@NamedEntityGraphs({
+    @NamedEntityGraph( name = Post.GRAPH_WITH_DOCUMENTS , 
+            attributeNodes = {
+                @NamedAttributeNode("documents")
+            })
+})
 @NamedQueries({
     @NamedQuery(name = Post.FIND_ALL, query = "select e from Post e order by e.createdOn DESC"),
     @NamedQuery(name = Post.FIND_BY_USR, query = "select e from Post e where e.owner.id= :user_id order by e.createdOn DESC"),
@@ -39,7 +53,8 @@ public class Post extends AbstractEntity {
     public static final String FIND_BY_USR = "Post.findByUser";
     public static final String FIND_BY_ID_AND_USR = "Post.findByIdAndUser";
     public static final String SEARCH = "Post.search";
-
+    public static final String GRAPH_WITH_DOCUMENTS = "Post.graphWithDocument";
+    
     @NotEmpty
     @Column(name = "title", nullable = false)
     private String title;
@@ -57,6 +72,9 @@ public class Post extends AbstractEntity {
     @Column(name = "end_date")
     @JsonbDateFormat("dd/MM/yyyy")
     private LocalDate endDate;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<Document> documents;
 
     public String getTitle() {
         return title;
@@ -88,6 +106,14 @@ public class Post extends AbstractEntity {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public List<Document> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<Document> documents) {
+        this.documents = documents;
     }
 
     @Override

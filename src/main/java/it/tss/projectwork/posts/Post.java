@@ -12,6 +12,7 @@ import it.tss.projectwork.users.UserLinkAdapter;
 import java.time.LocalDate;
 import java.util.List;
 import javax.json.bind.annotation.JsonbDateFormat;
+import javax.json.bind.annotation.JsonbTransient;
 import javax.json.bind.annotation.JsonbTypeAdapter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -70,7 +71,7 @@ public class Post extends AbstractEntity {
     private User owner;
 
     @Column(name = "end_date")
-    @JsonbDateFormat("dd/MM/yyyy")
+    @JsonbDateFormat("yyyy-MM-dd")
     private LocalDate endDate;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
@@ -112,6 +113,7 @@ public class Post extends AbstractEntity {
         return documents;
     }
 
+    @JsonbTransient
     public void setDocuments(List<Document> documents) {
         this.documents = documents;
     }

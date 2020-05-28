@@ -6,7 +6,9 @@
 package it.tss.projectwork.posts;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -28,7 +30,9 @@ public class PostStore {
     private EntityManager em;
 
     public Post find(Long id) {
-        return em.find(Post.class, id);
+        Map hints = new HashMap<>();
+        hints.put("javax.persistence.fetchgraph", em.createEntityGraph(Post.GRAPH_WITH_DOCUMENTS));
+        return em.find(Post.class, id, hints);
     }
 
     public Post create(Post p) {

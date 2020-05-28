@@ -12,6 +12,8 @@ import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.json.JsonBuilderFactory;
+import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -46,20 +48,22 @@ public class PostResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Post find() {
-        return store.findByIdAndUsr(id, userId).orElseThrow(() -> new NotFoundException());
+    public Response find() {
+        Post post = store.findByIdAndUsr(id, userId).orElseThrow(() -> new NotFoundException());
+        return Response.ok(JsonbBuilder.create().toJson(post)).build();
     }
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Post update(Post p) {
+    public Response update(String json) {
+        Post p = JsonbBuilder.create().fromJson(json, Post.class);
         if (p.getId() == null || !p.getId().equals(id) || !store.findByIdAndUsr(id, userId).isPresent()) {
             throw new BadRequestException();
         }
         User user = userStore.find(userId).orElseThrow(() -> new NotFoundException());
         p.setOwner(user);
-        return store.update(p);
+        return Response.ok(JsonbBuilder.create().toJson(store.update(p))).build();
     }
 
     @DELETE

@@ -15,6 +15,7 @@ import javax.ws.rs.NotFoundException;
  *
  * @author alfonso
  */
+
 public class UserLinkAdapter implements JsonbAdapter<User, JsonObject> {
 
     @Inject

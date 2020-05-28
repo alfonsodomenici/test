@@ -67,7 +67,8 @@ public class PostsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response create(Post p) {
+    public Response create(String json) {
+        Post p = JsonbBuilder.create().fromJson(json, Post.class);
         User user = userStore.find(userId).orElseThrow(() -> new NotFoundException());
         p.setOwner(user);
         Post saved = store.create(p);

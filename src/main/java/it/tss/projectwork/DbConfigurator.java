@@ -28,7 +28,8 @@ import org.flywaydb.core.Flyway;
         portNumber = DbConfigurator.MARIADB_PORT,
         user = DbConfigurator.MARIADB_USR,
         password = DbConfigurator.MARIADB_USER_PWD,
-        databaseName = DbConfigurator.MARIADB_DATABASE_NAME
+        databaseName = DbConfigurator.MARIADB_DATABASE_NAME,
+        properties = {"validate-on-match=true", "background-validation=false"}
 )
 @Singleton()
 @Startup

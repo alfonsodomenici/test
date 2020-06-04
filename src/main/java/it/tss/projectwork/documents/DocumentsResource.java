@@ -9,11 +9,13 @@ import it.tss.projectwork.posts.Post;
 import it.tss.projectwork.posts.PostStore;
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.bind.JsonbBuilder;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -76,12 +78,21 @@ public class DocumentsResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response download(@PathParam("id") Long id,
             @QueryParam("usr") String usr) {
-
-        Document doc = store.find(id);
+        Document doc = store.find(id).orElseThrow(() -> new NotFoundException());
         Response.ResponseBuilder response = Response.ok(store.getFile(doc.getFile()));
         response.header("Content-Disposition", "attachment; filename=\"" + doc.getFile() + "\"");
         response.header("Content-Type", doc.getMediaType());
         return response.build();
+    }
+
+    
+    @DELETE
+    @Path("{id}")
+    public Response delete(@PathParam("id") Long id) {
+        Optional<Document> optional = store.find(id);
+        Document found = optional.orElseThrow(() -> new NotFoundException());
+        store.remove(found.getId());
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
 

@@ -5,6 +5,7 @@
  */
 package it.tss.projectwork.posts;
 
+import it.tss.projectwork.documents.DocumentStore;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -29,6 +31,9 @@ public class PostStore {
     @PersistenceContext(name = "pw")
     private EntityManager em;
 
+    @Inject
+    DocumentStore documentStore;
+
     public Post find(Long id) {
         Map hints = new HashMap<>();
         hints.put("javax.persistence.fetchgraph", em.createEntityGraph(Post.GRAPH_WITH_DOCUMENTS));
@@ -44,6 +49,8 @@ public class PostStore {
     }
 
     public void delete(Long id) {
+        Post found = find(id);
+        found.getDocuments().forEach(documentStore::remove);
         em.remove(em.find(Post.class, id));
     }
 

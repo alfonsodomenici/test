@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJBException;
 import javax.ejb.Stateless;
@@ -21,6 +22,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.ws.rs.NotFoundException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 /**
@@ -30,30 +32,31 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class DocumentStore {
-
+    
     @Inject
     @ConfigProperty(name = "documents.folder")
     private String folder;
-
+    
     @PersistenceContext(name = "pw")
     EntityManager em;
-
+    
     @PostConstruct
     public void init() {
-
+        
     }
-
+    
     public List<Document> findByUserAndPost(Long userId, Long postId) {
         return em.createNamedQuery(Document.FIND_BY_USR_AND_POST, Document.class)
                 .setParameter("userId", userId)
                 .setParameter("postId", postId)
                 .getResultList();
     }
-
-    public Document find(Long id) {
-        return em.find(Document.class, id);
+    
+    public Optional<Document> find(Long id) {
+        Document found = em.find(Document.class, id);
+        return found == null ? Optional.empty() : Optional.of(found);
     }
-
+    
     public Document save(Document d, InputStream is) {
         Document saved = em.merge(d);
         try {
@@ -64,9 +67,13 @@ public class DocumentStore {
         }
         return saved;
     }
+    
+    public void remove(Document document) {
+        remove(document.getId());
+    }
 
     public void remove(Long id) {
-        Document saved = find(id);
+        Document saved = find(id).orElseThrow(() -> new EJBException("Documento non trovato..."));
         try {
             Files.delete(documentPath(saved.getFile()));
         } catch (IOException ex) {
@@ -74,13 +81,13 @@ public class DocumentStore {
         }
         em.remove(saved);
     }
-
+    
     private Path documentPath(String file) {
         return Paths.get(folder + file);
     }
-
+    
     public File getFile(String fileName) {
         return documentPath(fileName).toFile();
     }
-
+    
 }

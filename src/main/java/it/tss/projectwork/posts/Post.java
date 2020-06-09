@@ -66,7 +66,7 @@ public class Post extends AbstractEntity {
 
     @JsonbTypeAdapter(UserLinkAdapter.class)
     @NotNull
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false )
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
@@ -74,7 +74,7 @@ public class Post extends AbstractEntity {
     @JsonbDateFormat("yyyy-MM-dd")
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post")
     private List<Document> documents;
 
     public String getTitle() {

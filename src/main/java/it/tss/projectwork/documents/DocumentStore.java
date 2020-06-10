@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -32,31 +33,31 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @Stateless
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class DocumentStore {
-    
+
     @Inject
     @ConfigProperty(name = "documents.folder")
     private String folder;
-    
+
     @PersistenceContext(name = "pw")
     EntityManager em;
-    
+
     @PostConstruct
     public void init() {
-        
+
     }
-    
+
     public List<Document> findByUserAndPost(Long userId, Long postId) {
         return em.createNamedQuery(Document.FIND_BY_USR_AND_POST, Document.class)
                 .setParameter("userId", userId)
                 .setParameter("postId", postId)
                 .getResultList();
     }
-    
+
     public Optional<Document> find(Long id) {
         Document found = em.find(Document.class, id);
         return found == null ? Optional.empty() : Optional.of(found);
     }
-    
+
     public Document save(Document d, InputStream is) {
         Document saved = em.merge(d);
         try {
@@ -67,7 +68,7 @@ public class DocumentStore {
         }
         return saved;
     }
-    
+
     public void remove(Document document) {
         remove(document.getId());
     }
@@ -75,19 +76,21 @@ public class DocumentStore {
     public void remove(Long id) {
         Document saved = find(id).orElseThrow(() -> new EJBException("Documento non trovato..."));
         try {
-            Files.delete(documentPath(saved.getFile()));
+            if (Files.exists(documentPath(saved.getFile()), LinkOption.NOFOLLOW_LINKS)) {
+                Files.delete(documentPath(saved.getFile()));
+            }
         } catch (IOException ex) {
             throw new EJBException("delete document failed...");
         }
         em.remove(saved);
     }
-    
+
     private Path documentPath(String file) {
         return Paths.get(folder + file);
     }
-    
+
     public File getFile(String fileName) {
         return documentPath(fileName).toFile();
     }
-    
+
 }
